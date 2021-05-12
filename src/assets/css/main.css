@@ -1,0 +1,33 @@
+html
+{
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    width: max-content;
+}
+
+#app
+{
+    text-align: center;
+}
+    #app > table
+    {
+        border-collapse: collapse;
+        min-width: 100%;
+    }
+        #app > table > thead > tr > th
+        {
+            text-align: center;
+        }
+        #app > table > thead > tr > th,
+        #app > table > tbody > tr > td
+        {
+            border: 1px solid #000;
+            padding: 0.25em 0.5em;
+        }
+        #app > table > tbody > tr > td
+        {
+            text-align: left;
+        }
+            #app > table > tbody > tr > td.number
+            {
+                text-align: right;
+            }
