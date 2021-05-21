@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "@/assets/css/main.css";
 
 const MAX_ROWS = 10000;
+const ROWS_OFFSET = 2;
 const ROWS_PER_FRAME = 100;
 
 const EMOJIS = [
@@ -177,8 +178,8 @@ function* initialize()
         const lastVisibleRow = Math.min(Math.ceil(rawLastVisibleRow), tableRows.length);
         const firstVisibleRow = Math.max(Math.floor(rawLastVisibleRow - visibleRows), 0);
 
-        const minimum = firstVisibleRow + 2;
-        const maximum = lastVisibleRow - 2;
+        const minimum = firstVisibleRow + ROWS_OFFSET;
+        const maximum = lastVisibleRow - ROWS_OFFSET;
 
         if ((previousMinimum === null) || (previousMaximum === null) ||
             (minimum >= previousMaximum) || (maximum <= previousMinimum))
@@ -232,10 +233,25 @@ function* initialize()
         previousMaximum = maximum;
     }
 
+    const rowIndexInput = document.querySelector("#row-index");
+    const submitButton = document.querySelector("#submit");
+
     content.addEventListener("resize", onScrollEvent, { passive: true });
     content.addEventListener("scroll", onScrollEvent, { passive: true });
 
+    submitButton.addEventListener("click", () =>
+    {
+        const rowIndex = parseInt(rowIndexInput.value) - ROWS_OFFSET;
+        const guessedRowHeight = tableBody.clientHeight / tableRows.length;
+
+        content.scrollTop = guessedRowHeight * rowIndex;
+
+    }, { passive: true });
+
     requestAnimationFrame(onScrollEvent);
+
+    rowIndexInput.removeAttribute("disabled");
+    submitButton.removeAttribute("disabled");
 }
 
 const initializer = initialize();

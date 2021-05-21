@@ -8,12 +8,24 @@
     <title>Lazy Loading Tests</title>
   </head>
   <body>
-    <div class="progress">
+    <header class="progress">
       <div id="progress-bar" class="progress-bar"></div>
-    </div>
+    </header>
     <h1>Questo è un esempio di tabella con lazy loading!</h1>
-    <div class="container">
-      <div id="app"></div>
+    <div class="container-fluid">
+      <main class="card container">
+        <div id="app"></div>
+      </main>
+      <aside class="card sidebar">
+        <div class="mb-3">
+          <label class="form-label" for="row-index"># riga:</label>
+          <input id="row-index" class="form-control" type="number" min="1" value="1" disabled />
+          <small class="form-text text-muted">
+            Inserisci il numero della riga a cui vuoi andare.
+          </small>
+        </div>
+        <button id="submit" class="btn btn-primary" type="button" disabled>Vai!</button>
+      </aside>
     </div>
     <script type="module" src="./src/main.js" async></script>
   </body>
