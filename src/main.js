@@ -1,18 +1,23 @@
+import "bootstrap/dist/css/bootstrap.min.css";
+
 import "@/assets/css/main.css";
+
+const MAX_ROWS = 10000;
+const ROWS_PER_FRAME = 100;
 
 const EMOJIS = [
     "🙃", "😉", "😅", "🤣", "🥺", "😌", "😭", "🤔", "🎁", "🚀", "✨", "👌", "😍", "😕", "🥰", "👋", "🐇",
     "🐰", "🎩", "💡", "🎉", "🎊", "💊", "💉", "😇", "😊", "🐘", "📞", "📲", "🥇", "🥈", "🥉", "🍕", "🪁",
     "😴", "📕", "👨‍💻", "🍺", "☕", "🗻", "😒", "😂", "📷", "📖", "🏂", "🍻", "🎮", "🎤", "🎻", "🎸", "😔",
-    "🤯", "💣", "🔝", "🥚", "😎", "🐟", "📝", "😛", "😏", "😢", "😥", "👏", "🤫", "🕺", "✋", "🤙"
+    "🤯", "💣", "🔝", "🥚", "😎", "🐟", "📝", "😛", "😏", "😢", "😥", "👏", "🤫", "🕺", "✋", "🤙", "🥳"
 ];
 const WORDS = [
-    "Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "Pellentesque", "non",
-    "risus", "Aliquam", "eros", "ex", "lobortis", "ut", "mi", "eget", "consectetur", "sollicitudin", "nulla",
-    "Phasellus", "hendrerit", "convallis", "libero", "dignissim", "placerat", "enim", "porttitor", "eget", "Nam",
-    "eu", "rhoncus", "dolor", "quis", "maximus", "mauris", "In", "dignissim", "lacus", "facilisis", "risus", "mattis",
-    "maximus", "Aenean", "sed", "mi", "vel", "nisi", "commodo", "semper", "iaculis", "et", "elit", "Aenean", "at",
-    "condimentum", "eros", "et", "hendrerit", "dolor", "Nullam", "bibendum", "turpis", "in", "quam", "commodo"
+    "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "Pellentesque", "non",
+    "risus", "aliquam", "eros", "ex", "lobortis", "ut", "mi", "eget", "consectetur", "sollicitudin", "nulla",
+    "phasellus", "hendrerit", "convallis", "libero", "dignissim", "placerat", "enim", "porttitor", "eget", "nam",
+    "eu", "rhoncus", "dolor", "quis", "maximus", "mauris", "in", "dignissim", "lacus", "facilisis", "risus", "mattis",
+    "maximus", "aenean", "sed", "mi", "vel", "nisi", "commodo", "semper", "iaculis", "et", "elit", "aenean", "at",
+    "condimentum", "eros", "et", "hendrerit", "dolor", "nullam", "bibendum", "turpis", "in", "quam", "commodo"
 ];
 
 /**
@@ -28,9 +33,9 @@ function* range(value)
 
 function capitalize(value)
 {
-    return value.charAt(0).toUpperCase() + value.slice(1);
+    return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
-function generatePhrase(list)
+function randomPhrase(list)
 {
     const words = Math.floor(Math.random() * 4) + 2;
 
@@ -51,14 +56,16 @@ function randomElement(list)
     return list[Math.floor(Math.random() * list.length)];
 }
 
-function* generateTable(value)
+function* generateRows(rowsNumber)
 {
-    for (const index of range(value))
+    for (const index of range(rowsNumber))
     {
-        yield `
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
             <td>${randomElement(EMOJIS)}</td>
             <td class="number">#${index + 1}</td>
-            <td>${capitalize(generatePhrase(WORDS))}.</td>
+            <td>${capitalize(randomPhrase(WORDS))}.</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
@@ -79,132 +86,165 @@ function* generateTable(value)
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
-            <td>${capitalize(generatePhrase(WORDS))}.</td>
+            <td>${capitalize(randomPhrase(WORDS))}.</td>
             <td>
-                ${capitalize(generatePhrase(WORDS))} ${generatePhrase(WORDS)},
-                ${generatePhrase(WORDS)} ${generatePhrase(WORDS)}.
+                ${capitalize(randomPhrase(WORDS))} ${randomPhrase(WORDS)},
+                ${randomPhrase(WORDS)} ${randomPhrase(WORDS)}.
             </td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
-            <td>${generatePhrase(EMOJIS)}</td>
+            <td>${randomPhrase(EMOJIS)}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>
             <td class="number">${randomNumber()}</td>`;
+
+        yield row;
     }
 }
 
-document.querySelector("#app").innerHTML = `<table class="lazy-loading">
-<thead>
-    <tr>
-        <th colspan="36">Dettaglio riga</th>
-    </tr>
-</thead>
-<tbody></tbody>
-</table>`;
-
-const table = document.querySelector(".lazy-loading");
-
-const tableBody = table.tBodies[0];
-
-for (const child of generateTable(1000))
+function* initialize()
 {
-    const row = document.createElement("tr");
+    const progress = document.querySelector("#progress-bar");
+    const content = document.querySelector("#app");
+    const table = document.createElement("table");
 
-    row.innerHTML = child;
-    tableBody.append(row);
+    content.appendChild(table);
+    table.innerHTML = `
+    <thead>
+        <tr>
+            <th colspan="36">Dettaglio riga</th>
+        </tr>
+    </thead>
+    <tbody></tbody>`;
+
+    const tableBody = table.tBodies[0];
+    const tableRows = [];
+
+    let counter = 0;
+
+    for (const row of generateRows(MAX_ROWS))
+    {
+        counter += 1;
+        tableRows.push(row);
+
+        if ((counter % ROWS_PER_FRAME) === 0)
+        {
+            progress.style.width = `${(counter * 100) / MAX_ROWS}%`;
+
+            yield;
+        }
+    }
+
+    const startSpacingRow = document.createElement("tr");
+    const endSpacingRow = document.createElement("tr");
+
+    startSpacingRow.innerHTML = `<td class="spacer" colspan="36"></td>`;
+    endSpacingRow.innerHTML = `<td class="spacer" colspan="36"></td>`;
+
+    const startSpacingCell = startSpacingRow.children[0];
+    const endSpacingCell = endSpacingRow.children[0];
+
+    tableBody.replaceChildren(startSpacingRow, endSpacingRow);
+
+    let previousMinimum = null;
+    let previousMaximum = null;
+
+    function onScrollEvent()
+    {
+        const contentHeight = content.clientHeight;
+        const contentRect = content.getBoundingClientRect();
+        const tableRect = tableBody.getBoundingClientRect();
+        const tableStart = (tableRect.top - contentRect.top);
+
+        const tableHeight = (tableBody.scrollHeight > contentHeight) ? tableBody.scrollHeight : contentHeight;
+        const showedRows = tableBody.children.length;
+
+        let guessedRowHeight = 33;
+
+        if (showedRows > 2)
+        {
+            guessedRowHeight = tableHeight / tableRows.length;
+        }
+
+        const visibleRows = contentHeight / guessedRowHeight;
+        const rawLastVisibleRow = (contentHeight - tableStart) / guessedRowHeight;
+
+        const lastVisibleRow = Math.min(Math.ceil(rawLastVisibleRow), tableRows.length);
+        const firstVisibleRow = Math.max(Math.floor(rawLastVisibleRow - visibleRows), 0);
+
+        const minimum = firstVisibleRow + 2;
+        const maximum = lastVisibleRow - 2;
+
+        if ((previousMinimum === null) || (previousMaximum === null) ||
+            (minimum >= previousMaximum) || (maximum <= previousMinimum))
+        {
+            const children = tableRows.slice(minimum, maximum);
+
+            tableBody.replaceChildren(startSpacingRow, ...children, endSpacingRow);
+        }
+        else
+        {
+            tableBody.removeChild(startSpacingRow);
+            tableBody.removeChild(endSpacingRow);
+
+            if (minimum < previousMinimum)
+            {
+                const beforeChildren = tableRows.slice(minimum, previousMinimum);
+
+                tableBody.prepend(...beforeChildren);
+            }
+            else if (minimum > previousMinimum)
+            {
+                const beforeChildren = tableRows.slice(previousMinimum, minimum);
+
+                beforeChildren.forEach((child) => tableBody.removeChild(child));
+            }
+
+            if (maximum > previousMaximum)
+            {
+                const afterChildren = tableRows.slice(previousMaximum, maximum);
+
+                tableBody.append(...afterChildren);
+            }
+            else if (maximum < previousMaximum)
+            {
+                const afterChildren = tableRows.slice(maximum, previousMaximum);
+
+                afterChildren.forEach((child) => tableBody.removeChild(child));
+            }
+
+            tableBody.prepend(startSpacingRow);
+            tableBody.append(endSpacingRow);
+        }
+
+        const childrenBeforeHeight = minimum * guessedRowHeight;
+        const childrenAfterHeight = (tableRows.length - maximum) * guessedRowHeight;
+
+        startSpacingCell.style.height = `${childrenBeforeHeight}px`;
+        endSpacingCell.style.height = `${childrenAfterHeight}px`;
+
+        previousMinimum = minimum;
+        previousMaximum = maximum;
+    }
+
+    content.addEventListener("resize", onScrollEvent, { passive: true });
+    content.addEventListener("scroll", onScrollEvent, { passive: true });
+
+    requestAnimationFrame(onScrollEvent);
 }
 
-const tableRows = [...tableBody.rows];
-const tableHeight = tableBody.scrollHeight;
-const guessedRowHeight = tableHeight / tableRows.length;
+const initializer = initialize();
 
-const startSpacingRow = document.createElement("tr");
-const endSpacingRow = document.createElement("tr");
-
-startSpacingRow.innerHTML = `<td colspan="36" style="border: none;"></td>`;
-endSpacingRow.innerHTML = `<td colspan="36" style="border: none;"></td>`;
-
-const startSpacingCell = startSpacingRow.children[0];
-const endSpacingCell = endSpacingRow.children[0];
-
-tableBody.prepend(startSpacingRow);
-tableBody.append(endSpacingRow);
-
-let previousMinimum = tableRows.length;
-let previousMaximum = 0;
-
-function onScrollEvent()
+function main()
 {
-    const windowHeight = window.innerHeight;
-    const tableRect = tableBody.getBoundingClientRect();
-    const tableStart = tableRect.top;
+    initializer.next();
 
-    const visibleRows = windowHeight / guessedRowHeight;
-    const rawLastVisibleRow = (windowHeight - tableStart) / guessedRowHeight;
-
-    const lastVisibleRow = Math.min(Math.ceil(rawLastVisibleRow), tableRows.length);
-    const firstVisibleRow = Math.max(Math.ceil(rawLastVisibleRow - visibleRows), 1);
-
-    const minimum = firstVisibleRow + 1;
-    const maximum = lastVisibleRow - 3;
-
-    if ((minimum >= previousMaximum) || (maximum <= previousMinimum))
-    {
-        const children = tableRows.slice(minimum, maximum);
-
-        tableBody.replaceChildren(startSpacingRow, ...children, endSpacingRow);
-    }
-    else
-    {
-        tableBody.removeChild(startSpacingRow);
-        tableBody.removeChild(endSpacingRow);
-
-        if (minimum < previousMinimum)
-        {
-            const beforeChildren = tableRows.slice(minimum, previousMinimum);
-
-            tableBody.prepend(...beforeChildren);
-        }
-        else if (minimum > previousMinimum)
-        {
-            const beforeChildren = tableRows.slice(previousMinimum, minimum);
-
-            beforeChildren.forEach((child) => tableBody.removeChild(child));
-        }
-
-        if (maximum > previousMaximum)
-        {
-            const afterChildren = tableRows.slice(previousMaximum, maximum);
-
-            tableBody.append(...afterChildren);
-        }
-        else if (maximum < previousMaximum)
-        {
-            const afterChildren = tableRows.slice(maximum, previousMaximum);
-
-            afterChildren.forEach((child) => tableBody.removeChild(child));
-        }
-
-        tableBody.prepend(startSpacingRow);
-        tableBody.append(endSpacingRow);
-    }
-
-    const childrenBeforeHeight = minimum * guessedRowHeight;
-    const childrenAfterHeight = (tableRows.length - maximum) * guessedRowHeight;
-
-    startSpacingCell.style.height = `${childrenBeforeHeight}px`;
-    endSpacingCell.style.height = `${childrenAfterHeight}px`;
-
-    previousMinimum = minimum;
-    previousMaximum = maximum;
+    requestAnimationFrame(main);
 }
 
-window.addEventListener("resize", onScrollEvent, { passive: true });
-window.addEventListener("scroll", onScrollEvent, { passive: true });
-
-onScrollEvent();
+requestAnimationFrame(main);
